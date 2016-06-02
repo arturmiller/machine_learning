@@ -1,112 +1,156 @@
 import numpy as np
 from sklearn import datasets
-from sklearn.decomposition import PCA
 import matplotlib.pylab as plt
-from sklearn import preprocessing
+from matplotlib import offsetbox
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.manifold import TSNE
+from sklearn.neighbors import NearestNeighbors
 
-def plot2DPoints(X, Z):
-    plt.clf()
-    plt.plot(X[0,:], X[1,:], '.', color='b')
-    plt.plot(Z[0,:], Z[1,:], 'ro', color='r')
-    
-    
-def score(X, A, B):
-    return np.linalg.norm(X - np.dot(X, np.dot(B, A)))
+class Archetypal(BaseEstimator, TransformerMixin):
 
-def computeA(X, B, tmax):
-    (n, k) = np.shape(B)
-    
-    Z = np.dot(X, B)
-    
-    A = np.zeros((k, n))
-    A[0,:] = 1.0
-    #print np.linalg.norm(X - np.dot(Z, A))
-    
-    for t in range(tmax):
-        G = 2.0 * (np.dot(Z.T, np.dot(Z, A)) - np.dot(Z.T, X))
-        for i in range(n):
-            j = np.argmin(G[:,i])
+    def __init__(self, n_components=None, tmax=30, iterations=20):
+        self.n_components = n_components
+        self.tmax = tmax
+        self.iterations = iterations
 
-            A[:,i] += 2.0/(t+2.0) * (np.eye(1, k, j)[0,:] - A[:,i])
-            
-    #print np.linalg.norm(X - np.dot(Z, A))
-    return A
-
-def computeB(X, A, tmax):
-    (k, n) = np.shape(A)
+    def computeA(self, X, B, tmax):
+        (n, k) = np.shape(B)
+        
+        archetypes = np.dot(X, B)
+        
+        A = np.zeros((k, n))
+        A[0,:] = 1.0
     
-    B = np.zeros((n, k))
-    B[0,:] = 1.0
+        for t in range(tmax):
+            G = 2.0 * (np.dot(archetypes.T, np.dot(archetypes, A)) - np.dot(archetypes.T, X))
+            for i in range(n):
+                j = np.argmin(G[:,i])
     
-    for t in range(tmax):
-        G = 2.0 * (np.dot(X.T, np.dot(X, np.dot(B, np.dot(A, A.T)))) - np.dot(X.T, np.dot(X, A.T)))
-        for j in range(k):
-            
-            #    import pdb
-            #    pdb.set_trace()
-            if np.linalg.norm(G[:,j], 1) < 1e-6:
-                E = X - np.dot(X, np.dot(B, A)) 
-                i = np.argmax(np.linalg.norm(E, axis=0))
-                #import pdb
-                #pdb.set_trace()
-                #i = np.random.randint(n)
-            else:
+                A[:,i] += 2.0/(t+2.0) * (np.eye(1, k, j)[0,:] - A[:,i])
+                
+        return A
+    
+    def computeB(self, X, A, tmax):
+        (k, n) = np.shape(A)
+        
+        B = np.zeros((n, k))
+        B[0,:] = 1.0
+        
+        for t in range(tmax):
+            G = 2.0 * (np.dot(X.T, np.dot(X, np.dot(B, np.dot(A, A.T)))) - np.dot(X.T, np.dot(X, A.T)))
+            for j in range(k):
                 i = np.argmin(G[:,j])
-            #if j==2 or j==6:
-            #    print 'woot: ' +  str((i, j))
-            #    print G[:,j]
-            B[:,j] += 2.0/(t+2.0) * (np.eye(1, n, i)[0,:] - B[:,j])
+                B[:,j] += 2.0/(t+2.0) * (np.eye(1, n, i)[0,:] - B[:,j])
+                
+        return B
+
+    def fit(self, X, y=None):
+        self._fit(X)
+        return self
+
+    def fit_transform(self, X, y=None):
+        self._fit(X)
+        
+        return self.transform(X)
+        
+
+    def _fit(self, X):
+        k = self.n_components
+        nSamples = np.size(X, axis=0)
+        X = X.T
+        
+        B = np.eye(nSamples, k)
+    
+        self.Z = np.dot(X,B)
+
+        for i in range(self.iterations):
+            A = self.computeA(X, B, self.tmax)
+            B = self.computeB(X, A, self.tmax)
+            print 'score: ' + str(self._score(X, A, B))
+      
+            self.Z = np.dot(X,B)
             
-    return B
+        self.B = B
+    
+    def get_archetypes(self):
+        return self.Z.T
+
+    def transform(self, X):
+        A = self.computeA(X.T, self.B, self.tmax)
+        return A.T
+
+    def _score(self, X, A, B):
+        return np.linalg.norm(X - np.dot(X, np.dot(B, A)))
+    
+def showTSNE(ax, pointsTSNE, target, archetypes, archetypesTSNE):
+    ax.set_title('TSNE')
+    
+    
+    ax.scatter(pointsTSNE[:,0], pointsTSNE[:,1], c=target, cmap=plt.cm.get_cmap("jet", 10))
+    for i in range(np.size(archetypesTSNE, axis=0)):
+        image = offsetbox.OffsetImage(archetypes[i,:].reshape((8,8)), cmap='gray_r')
+        imagebox = offsetbox.AnnotationBbox(image, archetypesTSNE[i,:]) 
+        ax.add_artist(imagebox)
+    
+def showSample(ax, samples):
+    ax.clear()
+    ax.set_title('Sample')
+    ax.imshow(samples, cmap='gray_r', interpolation='nearest')
+    ax.get_figure().canvas.draw()
+    
+def showRepresentation(ax, index, pointsRepresentation, numberArchetypes):
+    ax.clear()
+    ax.set_title('Representation')
+    ax.barh(range(numberArchetypes), pointsRepresentation[index,:], align='center')
+    plt.xlabel('Performance')
+    ax.get_figure().canvas.draw()
+    
+def showArchetypes(archetypes):
+    
+    f, ax = plt.subplots(2, 5, sharex='col', sharey='row')
+    f.suptitle('Archetypes', fontsize=14)
+
+    for i in range(2):
+        for j in range(5):
+            ax[i,j].imshow(archetypes[i*5+j,:].reshape((8,8)), cmap='gray', interpolation='nearest')
+
 
 if __name__=='__main__':
-    #plt.ion()
   
-    digits = datasets.load_digits()
-    n_samples = len(digits.images)
-    data = digits.images.reshape((n_samples, -1))
+    digits = datasets.load_digits(8)
+    nSamples = len(digits.images)
+    data = digits.images.reshape((nSamples, -1))
     
-    pca = PCA(n_components=2)
-    data_pca = pca.fit_transform(data)
-    data_pca = preprocessing.scale(data_pca)
+    numberArchetypes = 10
 
-    #n_samples = 50
-    #data_pca = data_pca[:n_samples,:]
-    tmax = 100
-    k = 10
-    X = data_pca.T
-    B = np.eye(n_samples, k)
-    #B = np.random.rand(n_samples, k)
-    #B = B/np.mean(B,axis=0)
-    Z = np.dot(X,B)
-    plot2DPoints(X, Z)
-    
-    #plt.plot(range(np.size(Z, axis=1)), Z[0,:])
-    #plt.plot(range(np.size(Z, axis=1)), Z[1,:], color='r')
-    #plt.show()
-    for i in range(100):
-        #print Z
+    archetypal = Archetypal(n_components=numberArchetypes, tmax=50, iterations=20)
+    archetypal.fit(data)
 
-        A = computeA(X, B, tmax)
-        B = computeB(X, A, tmax)
-        print score(X, A, B)
-        #plt.show()
-        plt.pause(0.5)
-        Z_old = Z[:]
-        Z = np.dot(X,B)
-        print np.mean(Z-Z_old, axis=0)
-     
-        plot2DPoints(X, Z)
-#         plt.plot(range(np.size(Z, axis=1)), Z[0,:])
-#         plt.plot(range(np.size(Z, axis=1)), Z[1,:], color='r')
-#         plt.show()
-#         import pdb
-#         pdb.set_trace()
-        
+    dataArchetypal = archetypal.transform(data)
+    dataArchetypal = np.vstack([np.eye(numberArchetypes), dataArchetypal])
+
+    tsne = TSNE(n_components=2)
+    dataArchetypalTSNE = tsne.fit_transform(dataArchetypal)
+    nbrs = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(dataArchetypalTSNE[numberArchetypes:])
     
+
+    archetypes = archetypal.get_archetypes()
     
+
+    f, ax = plt.subplots(1, 3)
+
+    showTSNE(ax[0], dataArchetypalTSNE[numberArchetypes:,:], digits.target, archetypes, dataArchetypalTSNE[:numberArchetypes,:])
+    showSample(ax[1], digits.images[0])
+    showRepresentation(ax[2], 0, dataArchetypal[numberArchetypes:,:], numberArchetypes)
+    showArchetypes(archetypes)
     
+    def onclick(event):      
+        distances, indices = nbrs.kneighbors(np.array([event.xdata, event.ydata]).reshape((1,-1)))
+        index = indices[0][0]
+
+        showSample(ax[1], digits.images[index])
+        showRepresentation(ax[2], index, dataArchetypal[numberArchetypes:,:], numberArchetypes)
+    cid = f.canvas.mpl_connect('button_press_event', onclick)
     
-    
-    
+    plt.show()
     
