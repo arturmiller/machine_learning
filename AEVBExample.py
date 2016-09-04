@@ -42,7 +42,7 @@ def aevbExample():
     digits = datasets.load_digits(10)
     nSamples = len(digits.images)
     data = normalize(digits.images.reshape((nSamples, -1)))
-    aevb = AEVB(n_components=2, n_epochs=20000, learning_rate=5e-4)
+    aevb = AEVB(n_components=2, n_epochs=5000, learning_rate=1e-3)
     aevb.fit(data)
 
     showElbo(aevb)
