@@ -1,0 +1,12 @@
+\documentclass{article}
+\usepackage{graphicx}
+
+\begin{document}
+  \begin{tabular}{ | l | l | l | p{5cm} |}
+    \hline
+    Day & Min Temp & Max Temp & Summary \\ \hline
+    \BLOCK{ for _, row in df.iterrows() }
+      \VAR{row.day} & \VAR{row.min_temp} & \VAR{row.max_temp} & \VAR{row.summary} \\ \hline 
+	\BLOCK{ endfor }
+  \end{tabular}
+\end{document}
