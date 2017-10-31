@@ -8,7 +8,7 @@ import matplotlib.pylab as plt
 from sklearn import datasets
 from sklearn.preprocessing import normalize
 
-from AEVB import AEVB
+from aevb import AEVB
 
 
 def showElbo(aevb):

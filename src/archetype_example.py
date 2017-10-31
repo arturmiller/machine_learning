@@ -11,7 +11,7 @@ from matplotlib import offsetbox
 from sklearn.manifold import TSNE
 from sklearn.neighbors import NearestNeighbors
 
-from ArchetypalAnalysis import ArchetypalAnalysis
+from archetypal_analysis import ArchetypalAnalysis
 
 
 def showTSNE(ax, pointsTSNE, target, archetypes, archetypesTSNE):
