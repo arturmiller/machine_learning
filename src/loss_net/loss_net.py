@@ -10,7 +10,6 @@ from functools import partial
 
 import numpy as np
 import tensorflow as tf
-from scipy.io.matlab.miobase import arr_dtype_number
 
 
 class LossNet(object):
