@@ -31,7 +31,7 @@
      showgrid="false"
      inkscape:current-layer="ltx-render-layer"
      inkscape:document-units="mm"
-     inkscape:cy="909.87972"
+     inkscape:cy="959.92233"
      inkscape:cx="78.910606"
      inkscape:zoom="1.2483144"
      inkscape:pageshadow="2"
@@ -2465,72 +2465,6 @@
              y="1.495"
              x="6.4070001"
              xlink:href="#lx-text5689-glyph1-1"
-             width="100%"
-             height="100%" />
-        </g>
-      </g>
-    </g>
-    <g
-       id="lx-text7607"
-       transform="matrix(0.352778,0,0,0.352778,63.5,8.604158)">
-      <defs
-         id="defs2718">
-        <g
-           id="g2716">
-          <symbol
-             id="lx-text7607-glyph0-0"
-             overflow="visible"
-             style="overflow:visible">
-            <path
-               id="path2710"
-               d=""
-               style="stroke:none"
-               inkscape:connector-curvature="0" />
-          </symbol>
-          <symbol
-             id="lx-text7607-glyph0-1"
-             overflow="visible"
-             style="overflow:visible">
-            <path
-               id="path2713"
-               d="m 1.90625,-0.53125 c 0,-0.28125 -0.234375,-0.53125 -0.515625,-0.53125 -0.296875,0 -0.53125,0.25 -0.53125,0.53125 C 0.859375,-0.234375 1.09375,0 1.390625,0 1.671875,0 1.90625,-0.234375 1.90625,-0.53125 Z m 0,0"
-               style="stroke:none"
-               inkscape:connector-curvature="0" />
-          </symbol>
-        </g>
-      </defs>
-      <g
-         id="lx-text7607-surface1">
-        <g
-           id="g2722"
-           style="fill:#000000;fill-opacity:1">
-          <use
-             id="use2720"
-             y="0"
-             x="0"
-             xlink:href="#lx-text7607-glyph0-1"
-             width="100%"
-             height="100%" />
-        </g>
-        <g
-           id="g2726"
-           style="fill:#000000;fill-opacity:1">
-          <use
-             id="use2724"
-             y="3.9849999"
-             x="0"
-             xlink:href="#lx-text7607-glyph0-1"
-             width="100%"
-             height="100%" />
-        </g>
-        <g
-           id="g2730"
-           style="fill:#000000;fill-opacity:1">
-          <use
-             id="use2728"
-             y="7.9699998"
-             x="0"
-             xlink:href="#lx-text7607-glyph0-1"
              width="100%"
              height="100%" />
         </g>
