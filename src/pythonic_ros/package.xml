@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>pythonic_ros</name>
+  <version>0.0.1</version>
+  <description>Pythonic ROS</description>
+
+  <author email="amiller89@gmx.de">Artur Miller</author>
+  <maintainer email="amiller89@gmx.de">Artur Miller</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>rospy</depend>
+  <depend>roslaunch</depend>
+</package>
